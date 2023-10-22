@@ -8,7 +8,6 @@ import productRoutes from './routes/products.routes.js';
 dotenv.config();
 
 const port = process.env.PORT || 5000;
-// connectDB();
 
 if (process.env.NODE_ENV === 'test') {
     connectTestDB();
