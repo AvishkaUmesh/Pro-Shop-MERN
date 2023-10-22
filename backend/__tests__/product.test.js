@@ -26,8 +26,16 @@ describe('Product', () => {
         });
 
         it('should return a 404 if product is not found', async () => {
-            const response = await supertest(app).get('/api/products/100');
+            const response = await supertest(app).get(
+                '/api/products/65352f4143b333fb8160a38c'
+            );
             expect(response.statusCode).toBe(404);
+        });
+
+        it('should return a 404 if invalid ObjectId is passed', async () => {
+            const response = await supertest(app).get('/api/products/12345');
+            expect(response.statusCode).toBe(404);
+            expect(response.body.message).toBe('Invalid ObjectId of:  12345');
         });
     });
 });
