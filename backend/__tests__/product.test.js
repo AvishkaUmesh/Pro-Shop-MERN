@@ -19,9 +19,10 @@ describe('Product', () => {
             expect(product.body.name).toBe(
                 'Airpods Wireless Bluetooth Headphones'
             );
-            expect(product.body.name).toBe(
-                'Airpods Wireless Bluetooth Headphones'
-            );
+            expect(product.body.price).toBe(89.99);
+            expect(product.body.category).toBe('Electronics');
+            expect(product.body.brand).toBe('Apple');
+            expect(product.body.countInStock).toBe(10);
         });
 
         it('should return a 404 if product is not found', async () => {
