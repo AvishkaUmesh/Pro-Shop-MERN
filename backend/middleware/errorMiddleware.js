@@ -5,9 +5,9 @@
  * @param {Function} next - Express next middleware function.
  */
 const notFound = (req, res, next) => {
-	const error = new Error(`Not Found - ${req.originalUrl}`);
-	res.status(404);
-	next(error);
+    const error = new Error(`Not Found - ${req.originalUrl}`);
+    res.status(404);
+    next(error);
 };
 
 /**
@@ -17,14 +17,15 @@ const notFound = (req, res, next) => {
  * @param {Object} res - The Express response object.
  * @param {Function} next - The next middleware function in the chain.
  */
+// eslint-disable-next-line no-unused-vars
 const errorHandler = (err, req, res, next) => {
-	let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-	let message = err.message;
+    let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+    let message = err.message;
 
-	res.status(statusCode).json({
-		message: message,
-		stack: process.env.NODE_ENV === 'production' ? null : err.stack,
-	});
+    res.status(statusCode).json({
+        message: message,
+        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    });
 };
 
 export { errorHandler, notFound };
