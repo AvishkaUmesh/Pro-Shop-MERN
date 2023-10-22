@@ -14,7 +14,8 @@
 	"author": "Avishka Umesh",
 	"license": "ISC",
 	"dependencies": {
-		"express": "^4.18.2"
+		"express": "^4.18.2",
+		"mongoose": "^7.6.3"
 	},
 	"devDependencies": {
 		"concurrently": "^8.2.2",
