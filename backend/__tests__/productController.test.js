@@ -4,7 +4,7 @@ import { testAdminUser, testProducts } from '../data/testData.js';
 import Product from '../models/productModel.js';
 import User from '../models/userModel.js';
 
-describe('Product', () => {
+describe('Product Controller', () => {
     beforeAll(async () => {
         // Insert users
         const createdUser = await User.create(testAdminUser);

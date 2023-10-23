@@ -7,7 +7,7 @@ import {
 } from '../data/testData.js';
 import User from '../models/userModel.js';
 
-describe('User', () => {
+describe('User Controller', () => {
     // Create the test users before running the tests
     beforeAll(async () => {
         await User.deleteMany({});
@@ -20,11 +20,14 @@ describe('User', () => {
         await User.deleteMany({});
     });
 
+    /**
+     * User login tests
+     */
     describe('authUser', () => {
         it('should return user object if email and password are correct', async () => {
             const response = await supertest(app).post('/api/users/auth').send({
                 email: testNormalUser.email,
-                password: plainPassword,
+                password: testNormalUser.password,
             });
 
             expect(response.statusCode).toBe(200);
@@ -57,7 +60,7 @@ describe('User', () => {
         it('should return an admin user object', async () => {
             const response = await supertest(app).post('/api/users/auth').send({
                 email: testAdminUser.email,
-                password: plainPassword,
+                password: testAdminUser.password,
             });
 
             expect(response.statusCode).toBe(200);
@@ -68,6 +71,9 @@ describe('User', () => {
         });
     });
 
+    /**
+     * Unauthorized requests tests
+     */
     describe('Unauthorized requests', () => {
         describe('accessing protected routes when not logged in', () => {
             it('should return 401 status', async () => {
@@ -89,7 +95,7 @@ describe('User', () => {
                     .post('/api/users/auth')
                     .send({
                         email: testNormalUser.email,
-                        password: plainPassword,
+                        password: testNormalUser.password,
                     });
 
                 expect(response.statusCode).toBe(200);
@@ -119,6 +125,9 @@ describe('User', () => {
         });
     });
 
+    /**
+     * Requests Authorized with valid token tests
+     */
     describe('Authorized request', () => {
         describe('accessing protected routes', () => {
             it('should return 200 status', async () => {
@@ -126,7 +135,7 @@ describe('User', () => {
                     .post('/api/users/auth')
                     .send({
                         email: testNormalUser.email,
-                        password: plainPassword,
+                        password: testNormalUser.password,
                     });
 
                 expect(response.statusCode).toBe(200);
@@ -154,7 +163,7 @@ describe('User', () => {
                     .post('/api/users/auth')
                     .send({
                         email: testAdminUser.email,
-                        password: plainPassword,
+                        password: testAdminUser.password,
                     });
 
                 expect(response.statusCode).toBe(200);
@@ -181,6 +190,78 @@ describe('User', () => {
                     .set('Cookie', `jwt=${token}`)
                     .expect(200);
             });
+        });
+    });
+
+    /**
+     * User registration tests
+     */
+    describe('Register user', () => {
+        it('should return 201 status and user object & token if data is valid', async () => {
+            const response = await supertest(app).post('/api/users').send({
+                name: 'Registered User',
+                email: 'reg@example.com',
+                password: '123456',
+            });
+
+            expect(response.statusCode).toBe(201);
+            expect(response.body._id).toBeDefined();
+            expect(response.body.name).toBe('Registered User');
+            expect(response.body.email).toBe('reg@example.com');
+            expect(response.body.isAdmin).toBe(false);
+
+            // Get the token from the http-only cookie
+            const cookie = response.headers['set-cookie'][0];
+            const token = cookie.split('=')[1].split(';')[0];
+
+            expect(token).toBeDefined();
+        });
+
+        it('should return 500 status if name is missing', async () => {
+            const response = await supertest(app).post('/api/users').send({
+                email: 'test@test.com',
+                password: '123456',
+            });
+
+            expect(response.statusCode).toBe(500);
+            expect(response.body.message).toBe(
+                'User validation failed: name: Path `name` is required.'
+            );
+        });
+
+        it('should return 500 status if email is missing', async () => {
+            const response = await supertest(app).post('/api/users').send({
+                name: 'Test User',
+                password: '123456',
+            });
+
+            expect(response.statusCode).toBe(500);
+            expect(response.body.message).toBe(
+                'User validation failed: email: Path `email` is required.'
+            );
+        });
+
+        it('should return 500 status if password is missing', async () => {
+            const response = await supertest(app).post('/api/users').send({
+                name: 'Test User',
+                email: 'test@test.com',
+            });
+
+            expect(response.statusCode).toBe(500);
+            expect(response.body.message).toBe(
+                'User validation failed: password: Path `password` is required.'
+            );
+        });
+
+        it('should return 400 User already exists', async () => {
+            const response = await supertest(app).post('/api/users').send({
+                name: 'Registered User',
+                email: 'reg@example.com',
+                password: '123456',
+            });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body.message).toBe('User already exists');
         });
     });
 });

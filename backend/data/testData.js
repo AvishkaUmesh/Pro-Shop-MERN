@@ -1,19 +1,15 @@
-import bcrypt from 'bcryptjs';
-
-export const plainPassword = '123456';
-
 // normal test users
 export const testNormalUser = {
     name: 'Test User',
     email: 'test@example.com',
-    password: bcrypt.hashSync(plainPassword, 10),
+    password: '123456',
 };
 
 // admin test users
 export const testAdminUser = {
     name: 'Test Admin',
     email: 'admin@example.com',
-    password: bcrypt.hashSync(plainPassword, 10),
+    password: '123456',
     isAdmin: true,
 };
 
