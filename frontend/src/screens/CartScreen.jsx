@@ -9,11 +9,12 @@ import {
 } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Message from '../components/Message';
-import { addToCart } from '../slices/cartSlice';
+import { addToCart, removeFromCart } from '../slices/cartSlice';
 
 const CartScreen = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const cart = useSelector((state) => state.cart);
@@ -21,6 +22,14 @@ const CartScreen = () => {
 
     const addToCartHandler = (item, qty) => {
         dispatch(addToCart({ ...item, qty }));
+    };
+
+    const removeFromCartHandler = (id) => {
+        dispatch(removeFromCart(id));
+    };
+
+    const checkoutHandler = () => {
+        navigate('/login?redirect=shipping');
     };
 
     return (
@@ -87,7 +96,9 @@ const CartScreen = () => {
                                         <Button
                                             type="button"
                                             variant="light"
-                                            onClick={() => {}}
+                                            onClick={() => {
+                                                removeFromCartHandler(item._id);
+                                            }}
                                         >
                                             <FaTrash />
                                         </Button>
@@ -123,7 +134,7 @@ const CartScreen = () => {
                                 type="button"
                                 className="btn-block"
                                 disabled={cartItems.length === 0}
-                                onClick={() => {}}
+                                onClick={checkoutHandler}
                             >
                                 Proceed to Checkout
                             </Button>
