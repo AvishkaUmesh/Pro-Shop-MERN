@@ -1,5 +1,7 @@
 import { Card, Col, Image, ListGroup, Row } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
+import Loader from '../components/Loader';
+import Message from '../components/Message';
 import Rating from '../components/Rating';
 import { useGetProductQuery } from '../slices/productsApiSlice';
 
@@ -7,13 +9,13 @@ const ProductScreen = () => {
     const { id: productId } = useParams();
     const { data: product, isLoading, error } = useGetProductQuery(productId);
 
-    if (isLoading) return <h1>Loading...</h1>;
+    if (isLoading) return <Loader />;
 
     if (error)
         return (
-            <h1>
+            <Message variant="danger">
                 Error. Try Refreshing. {error?.data?.message || error?.error}
-            </h1>
+            </Message>
         );
 
     return (

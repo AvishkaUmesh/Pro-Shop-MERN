@@ -1,17 +1,19 @@
 import { Col, Row } from 'react-bootstrap';
+import Loader from '../components/Loader';
+import Message from '../components/Message';
 import Product from '../components/Product';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 
 const HomeScreen = () => {
     const { data: products, isLoading, error } = useGetProductsQuery();
 
-    if (isLoading) return <h1>Loading...</h1>;
+    if (isLoading) return <Loader />;
 
     if (error)
         return (
-            <h1>
+            <Message variant="danger">
                 Error. Try Refreshing. {error?.data?.message || error?.error}
-            </h1>
+            </Message>
         );
 
     return (
