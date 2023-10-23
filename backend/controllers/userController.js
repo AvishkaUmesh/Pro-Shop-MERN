@@ -48,8 +48,27 @@ const registerUser = asyncHandler(async (req, res) => {
     res.send('register user');
 });
 
+/**
+ * @function
+ * @async
+ * @desc Logout user by clearing the jwt cookie and sending a success message.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - JSON response with success message.
+ * @route POST /api/users/logout
+ * @access Private
+ */
 const logoutUser = asyncHandler(async (req, res) => {
-    res.send('logout user');
+    res.cookie('jwt', '', {
+        httpOnly: true,
+        expires: new Date(0),
+        secure:
+            process.env.NODE_ENV !== 'development' ||
+            process.env.NODE_ENV !== 'test',
+        sameSite: 'strict',
+    });
+
+    res.status(200).json({ message: 'Logged out successfully' });
 });
 
 const getUserProfile = asyncHandler(async (req, res) => {
