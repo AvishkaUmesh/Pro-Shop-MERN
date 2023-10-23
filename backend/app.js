@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
 import connectDB from './config/db.js';
@@ -15,6 +16,13 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 const app = express();
+
+// body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// cookie parser middleware
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
     res.send('Server is ready');
