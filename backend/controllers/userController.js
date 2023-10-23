@@ -44,6 +44,16 @@ const authUser = asyncHandler(async (req, res) => {
     }
 });
 
+/**
+ * @function
+ * @async
+ * @desc Logout user by clearing the jwt cookie and sending a success message.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - JSON response with success message.
+ * @route POST /api/users/logout
+ * @access Private
+ */
 const registerUser = asyncHandler(async (req, res) => {
     res.send('register user');
 });

@@ -71,7 +71,7 @@ describe('User', () => {
     describe('Unauthorized requests', () => {
         describe('accessing protected routes when not logged in', () => {
             it('should return 401 status', async () => {
-                await supertest(app).get('/api/users/getUsers').expect(401);
+                await supertest(app).get('/api/users').expect(401);
                 await supertest(app).get('/api/users/profile').expect(401);
                 await supertest(app)
                     .put('/api/users/profile')
@@ -99,7 +99,7 @@ describe('User', () => {
                 const token = cookie.split('=')[1].split(';')[0];
 
                 await supertest(app)
-                    .get('/api/users/getUsers')
+                    .get('/api/users')
                     .set('Cookie', `jwt=${token}`)
                     .expect(401);
                 await supertest(app)
@@ -164,7 +164,7 @@ describe('User', () => {
                 const token = cookie.split('=')[1].split(';')[0];
 
                 await supertest(app)
-                    .get('/api/users/getUsers')
+                    .get('/api/users')
                     .set('Cookie', `jwt=${token}`)
                     .expect(200);
                 await supertest(app)
