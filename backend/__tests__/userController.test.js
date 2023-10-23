@@ -197,71 +197,77 @@ describe('User Controller', () => {
      * User registration tests
      */
     describe('Register user', () => {
-        it('should return 201 status and user object & token if data is valid', async () => {
-            const response = await supertest(app).post('/api/users').send({
-                name: 'Registered User',
-                email: 'reg@example.com',
-                password: '123456',
+        describe('Given valid data', () => {
+            it('should return 201 status and user object & token', async () => {
+                const response = await supertest(app).post('/api/users').send({
+                    name: 'Registered User',
+                    email: 'reg@example.com',
+                    password: '123456',
+                });
+
+                expect(response.statusCode).toBe(201);
+                expect(response.body._id).toBeDefined();
+                expect(response.body.name).toBe('Registered User');
+                expect(response.body.email).toBe('reg@example.com');
+                expect(response.body.isAdmin).toBe(false);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                expect(token).toBeDefined();
             });
-
-            expect(response.statusCode).toBe(201);
-            expect(response.body._id).toBeDefined();
-            expect(response.body.name).toBe('Registered User');
-            expect(response.body.email).toBe('reg@example.com');
-            expect(response.body.isAdmin).toBe(false);
-
-            // Get the token from the http-only cookie
-            const cookie = response.headers['set-cookie'][0];
-            const token = cookie.split('=')[1].split(';')[0];
-
-            expect(token).toBeDefined();
         });
 
-        it('should return 500 status if name is missing', async () => {
-            const response = await supertest(app).post('/api/users').send({
-                email: 'test@test.com',
-                password: '123456',
+        describe('Given invalid data', () => {
+            it('should return 500 status if name is missing', async () => {
+                const response = await supertest(app).post('/api/users').send({
+                    email: 'test@test.com',
+                    password: '123456',
+                });
+
+                expect(response.statusCode).toBe(500);
+                expect(response.body.message).toBe(
+                    'User validation failed: name: Path `name` is required.'
+                );
             });
 
-            expect(response.statusCode).toBe(500);
-            expect(response.body.message).toBe(
-                'User validation failed: name: Path `name` is required.'
-            );
+            it('should return 500 status if email is missing', async () => {
+                const response = await supertest(app).post('/api/users').send({
+                    name: 'Test User',
+                    password: '123456',
+                });
+
+                expect(response.statusCode).toBe(500);
+                expect(response.body.message).toBe(
+                    'User validation failed: email: Path `email` is required.'
+                );
+            });
+
+            it('should return 500 status if password is missing', async () => {
+                const response = await supertest(app).post('/api/users').send({
+                    name: 'Test User',
+                    email: 'test@test.com',
+                });
+
+                expect(response.statusCode).toBe(500);
+                expect(response.body.message).toBe(
+                    'User validation failed: password: Path `password` is required.'
+                );
+            });
         });
 
-        it('should return 500 status if email is missing', async () => {
-            const response = await supertest(app).post('/api/users').send({
-                name: 'Test User',
-                password: '123456',
+        describe('Given already exist email', () => {
+            it('should return 400 User already exists', async () => {
+                const response = await supertest(app).post('/api/users').send({
+                    name: 'Registered User',
+                    email: 'reg@example.com',
+                    password: '123456',
+                });
+
+                expect(response.statusCode).toBe(400);
+                expect(response.body.message).toBe('User already exists');
             });
-
-            expect(response.statusCode).toBe(500);
-            expect(response.body.message).toBe(
-                'User validation failed: email: Path `email` is required.'
-            );
-        });
-
-        it('should return 500 status if password is missing', async () => {
-            const response = await supertest(app).post('/api/users').send({
-                name: 'Test User',
-                email: 'test@test.com',
-            });
-
-            expect(response.statusCode).toBe(500);
-            expect(response.body.message).toBe(
-                'User validation failed: password: Path `password` is required.'
-            );
-        });
-
-        it('should return 400 User already exists', async () => {
-            const response = await supertest(app).post('/api/users').send({
-                name: 'Registered User',
-                email: 'reg@example.com',
-                password: '123456',
-            });
-
-            expect(response.statusCode).toBe(400);
-            expect(response.body.message).toBe('User already exists');
         });
     });
 });
