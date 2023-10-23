@@ -1,37 +1,26 @@
-import bcrypt from 'bcryptjs';
 import supertest from 'supertest';
 import app from '../app.js';
+import {
+    plainPassword,
+    testAdminUser,
+    testNormalUser,
+} from '../data/testData.js';
 import User from '../models/userModel.js';
 
-// Define a test user
-const plainPassword = '123456';
-const testNormalUser = {
-    name: 'Test User',
-    email: 'test@example.com',
-    password: bcrypt.hashSync(plainPassword, 10),
-};
-
-const testAdminUser = {
-    name: 'Test Admin',
-    email: 'admin@example.com',
-    password: bcrypt.hashSync(plainPassword, 10),
-    isAdmin: true,
-};
-
 describe('User', () => {
+    // Create the test users before running the tests
+    beforeAll(async () => {
+        await User.deleteMany({});
+        await User.create(testNormalUser);
+        await User.create(testAdminUser);
+    });
+
+    // Remove the test user after running the tests
+    afterAll(async () => {
+        await User.deleteMany({});
+    });
+
     describe('authUser', () => {
-        // Create the test users before running the tests
-        beforeAll(async () => {
-            await User.deleteMany({});
-            await User.create(testNormalUser);
-            await User.create(testAdminUser);
-        });
-
-        // Remove the test user after running the tests
-        afterAll(async () => {
-            await User.deleteMany({});
-        });
-
         it('should return user object if email and password are correct', async () => {
             const response = await supertest(app).post('/api/users/auth').send({
                 email: testNormalUser.email,
@@ -76,6 +65,122 @@ describe('User', () => {
             expect(response.body.name).toBe(testAdminUser.name);
             expect(response.body.email).toBe(testAdminUser.email);
             expect(response.body.isAdmin).toBe(true);
+        });
+    });
+
+    describe('Unauthorized requests', () => {
+        describe('accessing protected routes when not logged in', () => {
+            it('should return 401 status', async () => {
+                await supertest(app).get('/api/users/getUsers').expect(401);
+                await supertest(app).get('/api/users/profile').expect(401);
+                await supertest(app)
+                    .put('/api/users/profile')
+                    .send({})
+                    .expect(401);
+                await supertest(app).get('/api/users/123').expect(401);
+                await supertest(app).put('/api/users/123').send({}).expect(401);
+                await supertest(app).delete('/api/users/123').expect(401);
+            });
+        });
+
+        describe(' when normal user access admin routes', () => {
+            it('should return 401', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: testNormalUser.email,
+                        password: plainPassword,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                await supertest(app)
+                    .get('/api/users/getUsers')
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(401);
+                await supertest(app)
+                    .get('/api/users/123')
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(401);
+                await supertest(app)
+                    .put('/api/users/123')
+                    .send({})
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(401);
+                await supertest(app)
+                    .delete('/api/users/123')
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(401);
+            });
+        });
+    });
+
+    describe('Authorized request', () => {
+        describe('accessing protected routes', () => {
+            it('should return 200 status', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: testNormalUser.email,
+                        password: plainPassword,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                await supertest(app)
+                    .get('/api/users/profile')
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(200);
+
+                await supertest(app)
+                    .put('/api/users/profile')
+                    .send({})
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(200);
+            });
+        });
+
+        describe('accessing admin routes', () => {
+            it('should return 200 status', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: testAdminUser.email,
+                        password: plainPassword,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                await supertest(app)
+                    .get('/api/users/getUsers')
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(200);
+                await supertest(app)
+                    .get('/api/users/123')
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(200);
+                await supertest(app)
+                    .put('/api/users/123')
+                    .send({})
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(200);
+                await supertest(app)
+                    .delete('/api/users/123')
+                    .set('Cookie', `jwt=${token}`)
+                    .expect(200);
+            });
         });
     });
 });

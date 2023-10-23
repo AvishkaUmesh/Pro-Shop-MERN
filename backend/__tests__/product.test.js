@@ -1,23 +1,23 @@
 import supertest from 'supertest';
 import app from '../app.js';
-import products from '../data/products.js';
-import users from '../data/users.js';
+import { testAdminUser, testProducts } from '../data/testData.js';
 import Product from '../models/productModel.js';
 import User from '../models/userModel.js';
 
 describe('Product', () => {
     beforeAll(async () => {
         // Insert users
-        const createdUsers = await User.insertMany(users);
+        const createdUser = await User.create(testAdminUser);
 
         // Get admin user
-        const adminUser = createdUsers[0]._id;
+        const adminUser = createdUser._id;
 
         // Insert products
-        const sampleProducts = products.map((product) => {
+        const products = testProducts.map((product) => {
             return { ...product, user: adminUser };
         });
-        await Product.insertMany(sampleProducts);
+
+        await Product.insertMany(products);
     });
 
     afterAll(async () => {
@@ -29,7 +29,7 @@ describe('Product', () => {
         it('should return list of products', async () => {
             const products = await supertest(app).get('/api/products');
             expect(products.statusCode).toBe(200);
-            expect(products.body.length).toBe(6);
+            expect(products.body.length).toBe(2);
         });
     });
     describe('get a single product', () => {
