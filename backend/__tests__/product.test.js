@@ -1,7 +1,30 @@
 import supertest from 'supertest';
 import app from '../app.js';
+import products from '../data/products.js';
+import users from '../data/users.js';
+import Product from '../models/productModel.js';
+import User from '../models/userModel.js';
 
 describe('Product', () => {
+    beforeAll(async () => {
+        // Insert users
+        const createdUsers = await User.insertMany(users);
+
+        // Get admin user
+        const adminUser = createdUsers[0]._id;
+
+        // Insert products
+        const sampleProducts = products.map((product) => {
+            return { ...product, user: adminUser };
+        });
+        await Product.insertMany(sampleProducts);
+    });
+
+    afterAll(async () => {
+        await Product.deleteMany();
+        await User.deleteMany();
+    });
+
     describe('get all products', () => {
         it('should return list of products', async () => {
             const products = await supertest(app).get('/api/products');
