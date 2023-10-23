@@ -45,10 +45,20 @@ describe('User', () => {
             expect(response.body.isAdmin).toBe(false);
         });
 
-        it('should return a 401 error if email or password is incorrect', async () => {
+        it('should return a 401 error if password is incorrect', async () => {
             const response = await supertest(app).post('/api/users/auth').send({
                 email: testNormalUser.email,
                 password: 'wrongPassword',
+            });
+
+            expect(response.statusCode).toBe(401);
+            expect(response.body.message).toBe('Invalid email or password');
+        });
+
+        it('should return a 401 error if email is incorrect', async () => {
+            const response = await supertest(app).post('/api/users/auth').send({
+                email: 'wrongEmail@example.com',
+                password: plainPassword,
             });
 
             expect(response.statusCode).toBe(401);
