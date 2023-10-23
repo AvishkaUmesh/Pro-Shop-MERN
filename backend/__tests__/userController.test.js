@@ -270,4 +270,244 @@ describe('User Controller', () => {
             });
         });
     });
+
+    /**
+     * Get user profile tests
+     */
+    describe('Get User profile', () => {
+        describe('Given valid token', () => {
+            it('should return 200 status and user object', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: testNormalUser.email,
+                        password: testNormalUser.password,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                const profileResponse = await supertest(app)
+                    .get('/api/users/profile')
+                    .set('Cookie', `jwt=${token}`);
+
+                expect(profileResponse.statusCode).toBe(200);
+                expect(profileResponse.body._id).toBeDefined();
+                expect(profileResponse.body.name).toBe(testNormalUser.name);
+                expect(profileResponse.body.email).toBe(testNormalUser.email);
+                expect(profileResponse.body.isAdmin).toBe(false);
+            });
+        });
+
+        describe('Given invalid token', () => {
+            it('should return 401 status', async () => {
+                const profileResponse = await supertest(app)
+                    .get('/api/users/profile')
+                    .set('Cookie', `jwt=invalidToken`);
+
+                expect(profileResponse.statusCode).toBe(401);
+                expect(profileResponse.body.message).toBe(
+                    'Not authorized, token failed'
+                );
+            });
+        });
+
+        describe('Given no token', () => {
+            it('should return 401 status', async () => {
+                const profileResponse =
+                    await supertest(app).get('/api/users/profile');
+
+                expect(profileResponse.statusCode).toBe(401);
+                expect(profileResponse.body.message).toBe(
+                    'Not authorized, no token'
+                );
+            });
+        });
+    });
+
+    /**
+     * Update user profile tests
+     */
+    describe('Update user profile', () => {
+        const updatedUser = {
+            name: 'Test User',
+            email: 'updated@.test.com',
+            password: 'Password',
+        };
+
+        const updatedName = 'Updated Name';
+        const updatedEmail = 'newtest@.test.com';
+        const updatedPassword = 'updatedPassword';
+
+        beforeAll(async () => {
+            await User.create({
+                name: updatedUser.name,
+                email: updatedUser.email,
+                password: updatedUser.password,
+            });
+        });
+
+        afterAll(async () => {
+            await User.deleteMany({ email: 'updated@.test.com' });
+        });
+
+        describe('Given only name', () => {
+            it('should return 200 status and updated user object', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: updatedUser.email,
+                        password: updatedUser.password,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                const profileResponse = await supertest(app)
+                    .put('/api/users/profile')
+                    .set('Cookie', `jwt=${token}`)
+                    .send({ name: updatedName });
+
+                expect(profileResponse.statusCode).toBe(200);
+                expect(profileResponse.body._id).toBeDefined();
+                expect(profileResponse.body.name).toBe(updatedName);
+                expect(profileResponse.body.email).toBe(updatedUser.email);
+                expect(profileResponse.body.isAdmin).toBe(false);
+            });
+        });
+
+        describe('Given only email', () => {
+            it('should return 200 status and updated user object', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: updatedUser.email,
+                        password: updatedUser.password,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                const profileResponse = await supertest(app)
+                    .put('/api/users/profile')
+                    .set('Cookie', `jwt=${token}`)
+                    .send({ email: updatedEmail });
+
+                expect(profileResponse.statusCode).toBe(200);
+                expect(profileResponse.body._id).toBeDefined();
+                expect(profileResponse.body.name).toBe('Updated Name');
+                expect(profileResponse.body.email).toBe(updatedEmail);
+                expect(profileResponse.body.isAdmin).toBe(false);
+            });
+        });
+
+        describe('Given only password', () => {
+            it('should return 200 status and updated user object', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: updatedEmail,
+                        password: updatedUser.password,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                const profileResponse = await supertest(app)
+                    .put('/api/users/profile')
+                    .set('Cookie', `jwt=${token}`)
+                    .send({ password: updatedPassword });
+
+                expect(profileResponse.statusCode).toBe(200);
+                expect(profileResponse.body._id).toBeDefined();
+                expect(profileResponse.body.name).toBe(updatedName);
+                expect(profileResponse.body.email).toBe(updatedEmail);
+                expect(profileResponse.body.isAdmin).toBe(false);
+            });
+        });
+
+        describe('Given all fields', () => {
+            it('should return 200 status and updated user object', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: updatedEmail,
+                        password: updatedPassword,
+                    });
+
+                expect(response.statusCode).toBe(200);
+
+                // Get the token from the http-only cookie
+                const cookie = response.headers['set-cookie'][0];
+                const token = cookie.split('=')[1].split(';')[0];
+
+                const profileResponse = await supertest(app)
+                    .put('/api/users/profile')
+                    .set('Cookie', `jwt=${token}`)
+                    .send({
+                        name: 'Updated Name',
+                        email: 'updated@.test.com',
+                        password: 'newPassword',
+                    });
+
+                expect(profileResponse.statusCode).toBe(200);
+                expect(profileResponse.body._id).toBeDefined();
+                expect(profileResponse.body.name).toBe('Updated Name');
+                expect(profileResponse.body.email).toBe('updated@.test.com');
+                expect(profileResponse.body.isAdmin).toBe(false);
+            });
+        });
+
+        describe('Given new credentials', () => {
+            it('should return 200 status and updated user object', async () => {
+                const response = await supertest(app)
+                    .post('/api/users/auth')
+                    .send({
+                        email: 'updated@.test.com',
+                        password: 'newPassword',
+                    });
+
+                expect(response.statusCode).toBe(200);
+            });
+        });
+
+        describe('Given invalid token', () => {
+            it('should return 401 status', async () => {
+                const profileResponse = await supertest(app)
+                    .put('/api/users/profile')
+                    .set('Cookie', `jwt=invalidToken`)
+                    .send({ name: 'Updated Name' });
+
+                expect(profileResponse.statusCode).toBe(401);
+                expect(profileResponse.body.message).toBe(
+                    'Not authorized, token failed'
+                );
+            });
+        });
+
+        describe('Given no token', () => {
+            it('should return 401 status', async () => {
+                const profileResponse = await supertest(app)
+                    .put('/api/users/profile')
+                    .send({ name: 'Updated Name' });
+
+                expect(profileResponse.statusCode).toBe(401);
+                expect(profileResponse.body.message).toBe(
+                    'Not authorized, no token'
+                );
+            });
+        });
+    });
 });
