@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import products from './data/products';
 import users from './data/users';
 import Order from './models/orderModel';
@@ -35,5 +36,6 @@ afterAll(async () => {
     await Product.deleteMany();
     await User.deleteMany();
     console.log('Data Destroyed!');
+    await mongoose.connection.close();
     server.close();
 });
