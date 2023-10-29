@@ -6,6 +6,7 @@ import Loader from '../../components/Loader';
 import Message from '../../components/Message';
 import {
     useCreateProductMutation,
+    useDeleteProductMutation,
     useGetProductsQuery,
 } from '../../slices/productsApiSlice';
 
@@ -15,10 +16,14 @@ const ProductListScreen = () => {
     const [createProduct, { isLoading: createLoading, error: createError }] =
         useCreateProductMutation();
 
+    const [deleteProduct, { isLoading: deleteLoading, error: deleteError }] =
+        useDeleteProductMutation();
+
     const createProductHandler = async () => {
         if (window.confirm('Are you sure you want to create a new product?')) {
             try {
                 await createProduct();
+                toast.success('Product created');
                 refetch();
             } catch (error) {
                 toast.error(error?.data?.message || error.error);
@@ -26,8 +31,16 @@ const ProductListScreen = () => {
         }
     };
 
-    const deleteHandler = (id) => {
-        console.log('delete', id);
+    const deleteHandler = async (id) => {
+        if (window.confirm('Are you sure')) {
+            try {
+                await deleteProduct(id);
+                toast.success('Product deleted');
+                refetch();
+            } catch (error) {
+                toast.error(error?.data?.message || error.error);
+            }
+        }
     };
 
     return (
@@ -43,8 +56,9 @@ const ProductListScreen = () => {
                 </Col>
             </Row>
 
-            {(createLoading || isLoading) && <Loader />}
+            {(createLoading || deleteLoading || isLoading) && <Loader />}
             {createError && <Message variant="danger">{createError}</Message>}
+            {deleteError && <Message variant="danger">{deleteError}</Message>}
             {error && <Message variant="danger">{error}</Message>}
 
             <Table striped bordered hover responsive className="table-sm">
