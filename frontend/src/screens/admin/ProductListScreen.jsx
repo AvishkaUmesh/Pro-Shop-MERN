@@ -44,6 +44,7 @@ const ProductListScreen = () => {
             </Row>
 
             {(createLoading || isLoading) && <Loader />}
+            {createError && <Message variant="danger">{createError}</Message>}
             {error && <Message variant="danger">{error}</Message>}
 
             <Table striped bordered hover responsive className="table-sm">
