@@ -9,7 +9,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            providesTags: ['User'],
         }),
 
         register: builder.mutation({
@@ -18,7 +17,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            providesTags: ['User'],
         }),
 
         logout: builder.mutation({
@@ -26,7 +24,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 url: `${USERS_URL}/logout`,
                 method: 'POST',
             }),
-            providesTags: ['User'],
         }),
 
         profile: builder.mutation({
@@ -35,7 +32,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data,
             }),
-            providesTags: ['User'],
         }),
     }),
 });

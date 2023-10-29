@@ -1,12 +1,30 @@
 import { Button, Col, Row, Table } from 'react-bootstrap';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { LinkContainer } from 'react-router-bootstrap';
+import { toast } from 'react-toastify';
 import Loader from '../../components/Loader';
 import Message from '../../components/Message';
-import { useGetProductsQuery } from '../../slices/productsApiSlice';
+import {
+    useCreateProductMutation,
+    useGetProductsQuery,
+} from '../../slices/productsApiSlice';
 
 const ProductListScreen = () => {
-    const { data: products, isLoading, error } = useGetProductsQuery();
+    const { data: products, isLoading, error, refetch } = useGetProductsQuery();
+
+    const [createProduct, { isLoading: createLoading, error: createError }] =
+        useCreateProductMutation();
+
+    const createProductHandler = async () => {
+        if (window.confirm('Are you sure you want to create a new product?')) {
+            try {
+                await createProduct();
+                refetch();
+            } catch (error) {
+                toast.error(error?.data?.message || error.error);
+            }
+        }
+    };
 
     const deleteHandler = (id) => {
         console.log('delete', id);
@@ -19,13 +37,13 @@ const ProductListScreen = () => {
                     <h1>Products</h1>
                 </Col>
                 <Col className="text-end">
-                    <Button className="my-3">
+                    <Button className="my-3" onClick={createProductHandler}>
                         <FaPlus /> Create Product
                     </Button>
                 </Col>
             </Row>
 
-            {isLoading && <Loader />}
+            {(createLoading || isLoading) && <Loader />}
             {error && <Message variant="danger">{error}</Message>}
 
             <Table striped bordered hover responsive className="table-sm">

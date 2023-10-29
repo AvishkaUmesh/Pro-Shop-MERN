@@ -9,14 +9,12 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: { ...order },
             }),
-            providesTags: ['Order'],
         }),
 
         getOrderDetails: builder.query({
             query: (id) => ({
                 url: `${ORDERS_URL}/${id}`,
             }),
-            providesTags: ['Order'],
             keepUnusedDataFor: 5,
         }),
 
@@ -26,7 +24,6 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: details,
             }),
-            providesTags: ['Order'],
         }),
 
         getPaypalClientId: builder.query({
@@ -47,7 +44,6 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
             query: () => ({
                 url: ORDERS_URL,
             }),
-            providesTags: ['Order'],
             keepUnusedDataFor: 5,
         }),
 
