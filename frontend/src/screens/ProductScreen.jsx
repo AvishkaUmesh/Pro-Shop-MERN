@@ -13,6 +13,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import Meta from '../components/Meta';
 import Rating from '../components/Rating';
 import { addToCart } from '../slices/cartSlice';
 import {
@@ -75,6 +76,8 @@ const ProductScreen = () => {
             <Link to="/" className="btn btn-light my-3">
                 Go Back
             </Link>
+
+            <Meta title={product.name} />
 
             <Row>
                 <Col md={5}>
