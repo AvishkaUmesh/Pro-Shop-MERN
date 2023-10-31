@@ -59,7 +59,7 @@ const registerUser = asyncHandler(async (req, res) => {
         // Generate JWT Cookie
         generateToken(res, user._id);
 
-        res.status(201).json({
+        return res.status(201).json({
             _id: user._id,
             name: user.name,
             email: user.email,
@@ -108,7 +108,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
-        res.status(200).json({
+        return res.status(200).json({
             _id: user._id,
             name: user.name,
             email: user.email,
@@ -142,7 +142,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
         const updatedUser = await user.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
@@ -182,7 +182,7 @@ const getUserById = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id).select('-password');
 
     if (user) {
-        res.status(200).json(user);
+        return res.status(200).json(user);
     }
 
     res.status(404);
@@ -211,7 +211,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         await user.deleteOne({
             _id: user._id,
         });
-        res.status(200).json({ message: 'User removed' });
+        return res.status(200).json({ message: 'User removed' });
     }
 
     res.status(404);
@@ -238,7 +238,7 @@ const updateUser = asyncHandler(async (req, res) => {
 
         const updatedUser = await user.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
