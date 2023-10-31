@@ -26,6 +26,7 @@ import ShippingScreen from './screens/ShippingScreen.jsx';
 import OrderListScreen from './screens/admin/OrderListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
 import ProductListScreen from './screens/admin/ProductListScreen.jsx';
+import UserEditScreen from './screens/admin/UserEditScreen.jsx';
 import UserListScreen from './screens/admin/UserListScreen.jsx';
 import store from './store.js';
 
@@ -57,6 +58,10 @@ const router = createBrowserRouter(
                     element={<ProductEditScreen />}
                 />
                 <Route path="/admin/user-list" element={<UserListScreen />} />
+                <Route
+                    path="/admin/user/:id/edit"
+                    element={<UserEditScreen />}
+                />
             </Route>
         </Route>
     )
