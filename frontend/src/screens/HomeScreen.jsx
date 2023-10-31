@@ -4,6 +4,7 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import Paginate from '../components/Paginate';
 import Product from '../components/Product';
+import ProductCarousel from '../components/ProductCarousel';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 
 const HomeScreen = () => {
@@ -29,7 +30,8 @@ const HomeScreen = () => {
                     Go Back
                 </Link>
             )}
-            <h1>Products</h1>
+            {!keyword && <ProductCarousel />}
+            <h1>Latest Products</h1>
             <Row>
                 {data.products.map((product) => (
                     <Col sm={12} md={6} lg={4} xl={3} key={product._id}>
