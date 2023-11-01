@@ -23,8 +23,7 @@ Please follow the setup and running instructions provided in the README to get s
 2. Navigate to the project directory using `cd Pro-Shop-MERN`.
 3. Copy the `.env.sample` file and rename it to `.env`. Fill in the necessary environment variables.
 4. Install the necessary dependencies using `npm install` `npm install --prefix frontend`
-5. Seed dummy data using `npm run data:import`
-6. Destroy dummy data using `npm run data:destroy`
+5. Seed dummy data using `npm run data:import` and if needed to destroy dummy data use `npm run data:destroy`
 
 ## Running the Project
 
